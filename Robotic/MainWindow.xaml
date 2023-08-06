@@ -1,0 +1,40 @@
+﻿<Window x:Class="UnityGame.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UnityGame"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:views="clr-namespace:Robotic.Views"
+        mc:Ignorable="d"
+        Title="KRob" Height="450" Width="800" Icon="robotic.ico">
+    <Grid>
+        
+            <materialDesign:Transitioner AutoApplyTransitionOrigins="True" SelectedIndex="{Binding ViewIndex}">
+                <materialDesign:Transitioner.InputBindings>
+                    <KeyBinding Key="Left" Command="{x:Static materialDesign:Transitioner.MovePreviousCommand}" />
+                    <KeyBinding Key="Right" Command="{x:Static materialDesign:Transitioner.MoveNextCommand}" />
+                </materialDesign:Transitioner.InputBindings>
+
+                <materialDesign:TransitionerSlide OpeningEffect="{materialDesign:TransitionEffect FadeIn}">
+                    <views:LoginView />
+                </materialDesign:TransitionerSlide>
+
+                <materialDesign:TransitionerSlide OpeningEffect="{materialDesign:TransitionEffect FadeIn}">
+                    <views:ProjectsView />
+                </materialDesign:TransitionerSlide>
+
+            <materialDesign:TransitionerSlide OpeningEffect="{materialDesign:TransitionEffect FadeIn}">
+                <views:NewProject />
+            </materialDesign:TransitionerSlide>
+
+            <materialDesign:TransitionerSlide OpeningEffect="{materialDesign:TransitionEffect FadeIn}">
+                    <views:InterviewView />
+                </materialDesign:TransitionerSlide>
+
+            </materialDesign:Transitioner>
+     
+        
+       
+    </Grid>
+</Window>

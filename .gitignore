@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/Robotic
+/Output
+/Robotic/bin/Debug
+/Robotic/obj
+/STEPProxy/obj/x64/Debug

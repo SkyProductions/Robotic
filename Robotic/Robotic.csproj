@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>disable</Nullable>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>True</UseWindowsForms>
+    <BaseOutputPath>..\Output\</BaseOutputPath>
+    <PackageOutputPath>..\Output</PackageOutputPath>
+    <BaseIntermediateOutputPath />
+    <PackageIcon>robotic.ico</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="robotic.ico" />
+    <None Remove="Views\Resources\Robot.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="robotic.ico">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </Resource>
+    <Resource Include="Views\Resources\Robot.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\STEPProxy\StepProxy.vcxproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ViewModel\Base\" />
+  </ItemGroup>
+
+</Project>
