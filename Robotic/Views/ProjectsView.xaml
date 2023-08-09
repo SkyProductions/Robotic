@@ -47,6 +47,7 @@
                                   Height="135"
                                   Stretch="UniformToFill" />
                                 <Button
+                                    Command="{Binding viewProjctCmd}"
                                       Grid.Row="0"
                                       Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
                                       HorizontalAlignment="Right"

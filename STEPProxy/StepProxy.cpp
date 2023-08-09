@@ -1,4 +1,4 @@
-// include required OCCT headers
+﻿// include required OCCT headers
 #include <Standard_Version.hxx>
 #include <Message_ProgressIndicator.hxx>
 #include <Message_ProgressScope.hxx>
@@ -51,6 +51,20 @@
 #include <STEPCAFControl_Reader.hxx>
 #include <XCAFDoc_ShapeTool.hxx>
 #include <XCAFDoc_DocumentTool.hxx>
+
+#include <V3d_View.hxx>
+#include <XCAFApp_Application.hxx>
+#include <XCAFDoc_ShapeTool.hxx>
+#include <Image_AlienPixMap.hxx>
+#include <Image_PixMap.hxx>
+#include <AIS_Shape.hxx>
+
+#include <AIS_InteractiveContext.hxx>
+#include <Aspect_Handle.hxx>
+#include <Graphic3d_GraphicDriver.hxx>
+#include <Graphic3d_NameOfMaterial.hxx>
+#include <OpenGl_GraphicDriver.hxx>
+
 //#include <Draw_ProgressIndicator.hxx>
 
 // list of required OCCT libraries
@@ -60,7 +74,7 @@
 #pragma comment(lib, "TKXSBase.lib")
 #pragma comment(lib, "TKService.lib")
 #pragma comment(lib, "TKV3d.lib")
-//#pragma comment(lib, "TKOpenGl.lib")
+#pragma comment(lib, "TKOpenGl.lib")
 #pragma comment(lib, "TKIGES.lib")
 #pragma comment(lib, "TKSTEP.lib")
 #pragma comment(lib, "TKStl.lib")
@@ -215,62 +229,6 @@ public:
       }
 
       
-
-      //for ( Standard_Integer n = 1; n <= aNbRoot; n++ )
-      //{
-      //  Standard_Boolean ok = aReader.TransferRoot( n );
-      //  int aNbShap = aReader.NbShapes();
-      //  if ( aNbShap > 0 )
-      //  {
-      //    for ( int i = 1; i <= aNbShap; i++ )
-      //    {
-      //      TopoDS_Shape aShape = aReader.Shape( i );
-      //      //myAISContext()->Display (new AIS_Shape (aShape), Standard_False);
-
-      //      aBuildTool.Add(aCompound, aShape);
-      //    }
-      //    //myAISContext()->UpdateCurrentViewer();
-      //  }
-      //}
-
-
-     /* Bnd_Box aBndBox;
-      BRepBndLib::Add(aCompound, aBndBox, Standard_False);
-      if (aBndBox.IsVoid())
-      {
-          return false;
-      }
-
-      NCollection_Vec3<double> aMin, aMax;
-      aBndBox.Get(aMin.x(), aMin.y(), aMin.z(), aMax.x(), aMax.y(), aMax.z());
-      const NCollection_Vec3<double> aBndDelta = aMax - aMin;*/
-
-      //BRepMesh_IncrementalMesh anAlgo;
-      //anAlgo.ChangeParameters().Deflection = aBndDelta.maxComp() * myLinearDeflection * 4.0;
-      //anAlgo.ChangeParameters().Angle = myAngularDeflection;
-      //anAlgo.ChangeParameters().InParallel = Standard_True;
-      //anAlgo.SetShape(aCompound);
-      //anAlgo.Perform();
-       
-      
-      //Handle(TDocStd_Application) anApp = DDocStd::GetApplication();
-      //const Standard_Real aSystemUnitFactor = UnitsMethods::GetCasCadeLengthUnit() * 0.001;
-
-      //TColStd_IndexedDataMapOfStringString aFileInfo;
-
-      //aFileInfo.Add("Author", "frank");
-
-      //Standard_Real aFileUnitFactor = 1.0;
-      //RWMesh_CoordinateSystem aSystemCoordSys = RWMesh_CoordinateSystem_Zup, aFileCoordSys = RWMesh_CoordinateSystem_Yup;
-      //Handle(Message_ProgressIndicator) progress = Handle(Message_ProgressIndicator)();
-      //
-      //RWObj_CafWriter aWriter(TCollection_AsciiString("test.obj"));
-      ////aWriter.ChangeCoordinateSystemConverter().SetInputLengthUnit(aSystemUnitFactor);
-      //aWriter.ChangeCoordinateSystemConverter().SetInputCoordinateSystem(aSystemCoordSys);
-      ////aWriter.ChangeCoordinateSystemConverter().SetOutputLengthUnit(aFileUnitFactor);
-      // aWriter.ChangeCoordinateSystemConverter().SetOutputCoordinateSystem(aFileCoordSys);
-      //aWriter.Perform(aDoc, aFileInfo, progress->Start());
-
       Standard_Real aFileUnitFactor = 1.0;
       RWMesh_CoordinateSystem aSystemCoordSys = RWMesh_CoordinateSystem_Zup, aFileCoordSys = RWMesh_CoordinateSystem_Yup;
       //Draw_Interpretor di;
@@ -284,8 +242,44 @@ public:
       aWriter.ChangeCoordinateSystemConverter().SetInputCoordinateSystem(aSystemCoordSys);
       aWriter.ChangeCoordinateSystemConverter().SetOutputLengthUnit(aFileUnitFactor);
       aWriter.ChangeCoordinateSystemConverter().SetOutputCoordinateSystem(aFileCoordSys);
+
       Message_ProgressRange theProgress;
       aWriter.Perform(aDoc, aFileInfo, theProgress);
+
+
+      // Khởi tạo 3D Viewer
+      Handle(V3d_Viewer) viewer = new V3d_Viewer();
+      Handle(V3d_View) view = viewer->CreateView();
+
+      // Hiển thị hình học trên viewer
+      AIS_Shape aisShape(shape);
+      viewer->SetDefaultLights();
+      viewer->SetLightOn();
+
+      view->SetBackground(Aspect_TOL_DARKSLATEGRAY);
+      view->MustBeResized();
+      view->TriedronDisplay(Aspect_TOTP_LEFT_LOWER, Quantity_NOC_GOLD, 0.08, V3d_ZBUFFER);
+
+      view->SetShadingModel(Graphic3d_GSM_FLAT);
+
+      //Bước tao ra file ảnh
+      Handle(OpenGl_GraphicDriver) aGraphicDriver = new OpenGl_GraphicDriver(NULL);
+      Handle(Aspect_Window) window = new Aspect_Window((Aspect_Handle)winId());
+      view->SetWindow(window);
+      view->SetDriver(aGraphicDriver);
+      view->SetBackgroundColor(Quantity_NOC_BLACK);
+
+      Handle(AIS_InteractiveContext) aisContext = new AIS_InteractiveContext(viewer);
+
+      aisContext->SetColor(aisShape, Quantity_NOC_YELLOW, Standard_True);
+      aisContext->SetDisplayMode(aisShape, 1, Standard_True);
+
+      view->FitAll();
+
+      // Lấy ảnh từ viewer
+      TCollection_AsciiString anImageFile = "output_image.png";
+      Image_PixMap pixmap = view->ToPixMap();
+      Image_Magic::Write(pixmap, anImageFile.ToCString());
     }
     else
     {
@@ -307,5 +301,6 @@ public:
      return ImportStep(aFilename, oFilename);
     
   }
+
 
 };
